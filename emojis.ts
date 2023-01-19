@@ -1,4 +1,4 @@
-export const EmojiMap = {
+export const EmojiMap: { [key: string]: string } = {
   sword: "<:Sword:975775115105153154>",
   fire: "<:fireorange:1059946852461580379>",
   fireblue: "<:fireblue:1058822338763817101>",

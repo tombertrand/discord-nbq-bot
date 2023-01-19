@@ -1,4 +1,4 @@
-export const Runes = {
+export const Runes: { [key: string]: any } = {
   sat: {
     rank: 1,
     requirement: 1,
@@ -220,7 +220,7 @@ export const Runes = {
   },
 };
 
-export const Runewords = {
+export const Runewords: { [key: string]: any } = {
   weapon: {
     "al-sat-mir-nan": {
       name: "Sub Second Confirmation",
