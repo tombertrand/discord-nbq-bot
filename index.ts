@@ -57,7 +57,7 @@ client.on("messageCreate", async (message) => {
   if (!message.content.startsWith(prefix)) return;
   if (![channels.support, channels.betaChat].includes(message.channelId)) {
     message.reply(
-      `You may only use bot commands in the <#${channels.support}>, <#${channels.support}> or <#${channels.jungle}> channels`
+      `You may only use bot commands in the <#${channels.support}> channel`
     );
     return;
   }
