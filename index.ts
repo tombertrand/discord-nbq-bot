@@ -10,7 +10,8 @@ import { generateRandomString } from "./utils";
 import { RolesMap } from "./roles";
 import { getLevel } from "./experience";
 
-const { REDIS_PORT, REDIS_HOST, REDIS_PASSWORD, BOT_TOKEN } = process.env;
+const { REDIS_PORT, REDIS_HOST, REDIS_DB_INDEX, REDIS_PASSWORD, BOT_TOKEN } =
+  process.env;
 
 const redisClient = createClient({
   url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
@@ -20,6 +21,12 @@ const redisClient = createClient({
 
 setImmediate(async () => {
   redisClient.on("error", (err) => console.log("Redis Client Error", err));
+
+  redisClient.on("connect", () => {
+    if (REDIS_DB_INDEX) {
+      redisClient.select(parseInt(REDIS_DB_INDEX, 10));
+    }
+  });
 
   await redisClient.connect();
 });
