@@ -135,20 +135,32 @@ client.on("messageCreate", async (message) => {
     const playerName = await redisClient.get(key);
 
     if (playerName) {
-      message.author.send(
-        `You're Discord account is already linked to ${
-          playerName || "Unknown player name"
-        }`
-      );
+      message.author
+        .send(
+          `You're Discord account is already linked to ${
+            playerName || "Unknown player name"
+          }`
+        )
+        .catch((_error) => {
+          message.channel.send(
+            `Something went wrong while I tried to send you a DM`
+          );
+        });
     } else {
       const secret = generateRandomString(6);
 
       redisClient.set(key, "");
       redisClient.set(`discord_secret:${secret}`, message.author.id);
 
-      message.author.send(
-        `You're trying to link your Discord account with your (Ba)NanoBrowserQuest account!\nTo do so, login to your player account and type the following command in the game chat box.\n\n\`\`\`!link ${secret}\`\`\`\nIf the secret is correct you'll receive a success message from the Quest Bot on Discord!`
-      );
+      message.author
+        .send(
+          `You're trying to link your Discord account with your (Ba)NanoBrowserQuest account!\nTo do so, login to your player account and type the following command in the game chat box.\n\n\`\`\`!link ${secret}\`\`\`\nIf the secret is correct you'll receive a success message from the Quest Bot on Discord!`
+        )
+        .catch((_error) => {
+          message.channel.send(
+            `Something went wrong while I tried to send you a DM`
+          );
+        });
     }
   } else if (command === "me") {
     const key = `discord:${message.author.id}`;
