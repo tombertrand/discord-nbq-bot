@@ -134,6 +134,8 @@ client.on("messageCreate", async (message) => {
     const key = `discord:${message.author.id}`;
     const playerName = await redisClient.get(key);
 
+    console.log(`Author ID: ${message.author.id} trying to !link`);
+
     if (playerName) {
       message.author
         .send(
@@ -157,6 +159,8 @@ client.on("messageCreate", async (message) => {
           `You're trying to link your Discord account with your (Ba)NanoBrowserQuest account!\nTo do so, login to your player account and type the following command in the game chat box.\n\n\`\`\`!link ${secret}\`\`\`\nIf the secret is correct you'll receive a success message from the Quest Bot on Discord!`
         )
         .catch((_error) => {
+          console.log(`Something went wrong while I tried to send you a DM`);
+
           message.channel.send(
             `Something went wrong while I tried to send you a DM`
           );
