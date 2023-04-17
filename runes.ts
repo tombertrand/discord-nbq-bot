@@ -331,6 +331,18 @@ export const Runewords: { [key: string]: any } = {
     },
   },
   armor: {
+    "um-hex-sol-zal-btc-fal": {
+      name: "Dandelion++",
+      bonus: {
+        health: 60,
+        defense: 20,
+        flameDamage: 20,
+        pierceDamage: 10,
+        magicResistance: 20,
+        lightningResistance: 15,
+        reduceFrozenChance: 15,
+      },
+    },
     "do-las-sol-vod-jah-por": {
       name: "Melon Tusk",
       bonus: {
