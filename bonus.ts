@@ -6,42 +6,49 @@ interface TypeProps {
 const Types = {} as TypeProps;
 
 Types.getBonusDescriptionMap = [
-  "+# Minimum damage",
-  "+# Maximum damage",
-  "+# Attack",
-  "+# Health",
-  "+# Magic damage",
-  "+# Defense",
-  "+# Absorbed damage",
-  "+#% Experience",
-  "+# health regeneration per second",
-  "+#% Critical hit",
-  "+#% Block enemy attack",
-  "+#% Magic find",
-  "+#% Attack speed",
-  "+# Drain life",
-  "+# Flame damage",
-  "+# Lightning damage",
-  "+# Pierce armor attack",
-  "+# Health",
-  "+# Cold damage",
-  "+#% Freeze the enemy for # seconds",
-  "-#% Chance of being frozen",
-  "+#% Magic resistance",
-  "+#% Flame resistance",
-  "+#% Lightning resistance",
-  "+#% Cold resistance",
-  "+#% Poison resistance",
-  "+#% Physical resistance",
-  "+#% Magic damage",
-  "+#% Flame damage",
-  "+#% Lightning damage",
-  "+#% Cold damage",
-  "+#% Poison damage",
-  "+#% All resistances",
-  "+#% Prevent enemy health regeneration",
-  "+# Poison damage",
-  "-#% Skill timeout",
+  "+# Minimum damage", // 0
+  "+# Maximum damage", // 1
+  "+# Attack", // 2
+  "+# Health", // 3
+  "+# Magic damage", // 4
+  "+# Defense", // 5
+  "+# Absorbed damage", // 6
+  "+#% Experience", // 7
+  "+# health regeneration per second", // 8
+  "+#% Critical hit", // 9
+  "+#% Block enemy attack", // 10
+  "+#% Magic find", // 11
+  "+#% Attack speed", // 12
+  "+# Drain life", // 13
+  "+# Flame damage", //14
+  "+# Lightning damage", // 15
+  "+# Pierce armor attack", // 16
+  "+# Health", // 17
+  "+# Cold damage", // 18
+  "+#% Freeze the enemy for # seconds", // 19
+  "-#% Chance of being frozen", // 20
+  "+#% Magic resistance", // 21
+  "+#% Flame resistance", // 22
+  "+#% Lightning resistance", // 23
+  "+#% Cold resistance", // 24
+  "+#% Poison resistance", // 25
+  "+#% Spectral resistance", // 26
+  "+#% Magic damage", // 27
+  "+#% Flame damage", // 28
+  "+#% Lightning damage", // 29
+  "+#% Cold damage", // 30
+  "+#% Poison damage", // 31
+  "+#% All resistances", // 32
+  "+#% Prevent enemy health regeneration", // 33
+  "+# Poison damage", // 34
+  "#% Faster cast rate", // 35
+  "-#% Enemy lower Magic resistance", // 36
+  "-#% Enemy lower Flame resistance", // 37
+  "-#% Enemy lower Lightning resistance", // 38
+  "-#% Enemy lower Cold resistance", // 39
+  "-#% Enemy lower Poison resistance", // 40
+  "-#% Enemy lower resistances", // 41
+  "+#% Extra gold from enemies", // 42
 ];
 
 Types.bonusType = [
@@ -71,7 +78,7 @@ Types.bonusType = [
   "lightningResistance", // 23
   "coldResistance", // 24
   "poisonResistance", // 25
-  "physicalResistance", // 26
+  "spectralResistance", // 26
   "magicDamagePercent", // 27
   "flameDamagePercent", // 28
   "lightningDamagePercent", // 29
@@ -81,6 +88,13 @@ Types.bonusType = [
   "preventRegenerateHealth", // 33
   "poisonDamage", // 34
   "skillTimeout", // 35
+  "lowerMagicResistance", // 36
+  "lowerFlameResistance", // 37
+  "lowerLightningResistance", // 38
+  "lowerColdResistance", // 39
+  "lowerPoisonResistance", // 40
+  "lowerAllResistance", // 41
+  "extraGold", // 42
 ];
 
 export const getBonusDescription = (bonus, stats) => {
