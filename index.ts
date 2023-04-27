@@ -122,7 +122,7 @@ client.on("messageCreate", async (message) => {
             reply += `${line}\n`;
           } else {
             message.reply(reply.trim());
-            reply = line;
+            reply = `${line}\n`;
           }
         }
       );
