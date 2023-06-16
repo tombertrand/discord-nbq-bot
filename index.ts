@@ -9,6 +9,7 @@ import { createClient } from "redis";
 import { generateRandomString } from "./utils";
 import { RolesMap } from "./roles";
 import { getLevel } from "./experience";
+// import { getPurchaseTotal } from "./purchase";
 
 const { REDIS_PORT, REDIS_HOST, REDIS_DB_INDEX, REDIS_PASSWORD, BOT_TOKEN } =
   process.env;
@@ -18,6 +19,8 @@ const redisClient = createClient({
   password: REDIS_PASSWORD,
   database: 0,
 });
+
+// getPurchaseTotal();
 
 setImmediate(async () => {
   redisClient.on("error", (err) => console.log("Redis Client Error", err));

@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bignumber.js": "^9.1.1",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
+    "nanocurrency-web": "^1.4.3",
     "redis": "^4.5.1"
   },
   "devDependencies": {
