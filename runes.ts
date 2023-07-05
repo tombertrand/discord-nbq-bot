@@ -278,7 +278,7 @@ export const Runewords: { [key: string]: any } = {
         regenerateHealth: 25,
       },
     },
-    "las-tor-mir-tor-al-vie": {
+    "las-bul-mir-tor-al-vie": {
       name: "Cold Wallet",
       bonus: {
         health: 80,
@@ -287,13 +287,27 @@ export const Runewords: { [key: string]: any } = {
         coldDamage: 40,
         freezeChance: 15,
         coldResistance: 35,
+        regenerateHealth: 15,
+      },
+    },
+    "las-tor-qua-tor-jah-vie": {
+      name: "Cold Wallet 2.0",
+      bonus: {
+        health: 100,
+        minDamage: 25,
+        attackDamage: 25,
+        coldDamage: 40,
+        freezeChance: 25,
+        reduceFrozenChance: 15,
+        coldDamagePercent: 18,
+        coldResistance: 35,
         regenerateHealth: 25,
       },
     },
     "bul-mir-zal-um-vax": {
       name: "Hot Wallet",
       bonus: {
-        maxDamage: 10,
+        maxDamage: 15,
         attackDamage: 15,
         flameDamage: 20,
         flameResistance: 15,
@@ -592,7 +606,7 @@ export const Runewords: { [key: string]: any } = {
         health: 60,
         defense: 20,
         absorbedDamage: 15,
-        attackDamage: 10,
+        attackDamage: 15,
         minDamage: 15,
       },
     },
@@ -601,6 +615,8 @@ export const Runewords: { [key: string]: any } = {
       bonus: {
         health: 180,
         defense: 30,
+        poisonDamage: 20,
+        poisonResistance: 35,
         allResistance: 20,
         regenerateHealth: 25,
       },
@@ -616,7 +632,7 @@ export const Runewords: { [key: string]: any } = {
         coldDamage: 15,
         poisonDamage: 15,
         magicFind: 25,
-        skillTimeout: 10,
+        skillTimeout: 15,
         allResistance: 20,
       },
     },
