@@ -104,11 +104,16 @@ client.on("messageCreate", async (message) => {
     let reply = "";
     let equipmentTypes = Object.keys(Runewords);
 
-    if (args[0] && equipmentTypes.includes(args[0])) {
-      equipmentTypes = [args[0]];
+    if (args[0]) {
+      if (equipmentTypes.includes(args[0])) {
+        equipmentTypes = [args[0]];
+      } else {
+        equipmentTypes = [];
+        reply = `${args[0]} is not a valid item type`;
+      }
     }
 
-    equipmentTypes.map((equipment) => {
+    equipmentTypes?.map((equipment) => {
       Object.entries(Runewords[equipment]).map(
         ([runes, { name, bonus }]: [string, any]) => {
           const runeEmojis = runes
