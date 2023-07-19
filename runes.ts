@@ -349,6 +349,30 @@ export const Runewords: { [key: string]: any } = {
         preventRegenerateHealth: 20,
       },
     },
+    "jah-shi-tor-qua-zal": {
+      name: "Not a Security",
+      bonus: {
+        attackDamage: 15,
+        lightningDamage: 25,
+        lightningDamagePercent: 20,
+        pierceDamage: 20,
+        freezeChance: 15,
+        allResistance: 18,
+        magicFind: 25,
+      },
+    },
+    "fal-shi-zal-xno-cham": {
+      name: "Sharding",
+      bonus: {
+        attackDamage: 20,
+        magicDamage: 20,
+        magicDamagePercent: 20,
+        magicResistance: 20,
+        pierceDamage: 25,
+        allResistance: 18,
+        attackSpeed: 14,
+      },
+    },
   },
   armor: {
     "um-hex-sol-zal-btc-fal": {
@@ -634,6 +658,71 @@ export const Runewords: { [key: string]: any } = {
         magicFind: 25,
         skillTimeout: 15,
         allResistance: 20,
+      },
+    },
+  },
+  helm: {
+    "bul-bul": {
+      name: "Regulation",
+      bonus: {
+        health: 20,
+        attackDamage: 5,
+        defense: 10,
+        regenerateHealth: 5,
+      },
+    },
+    "mir-sat-hex": {
+      name: "Mesh network",
+      bonus: {
+        health: 20,
+        attackDamage: 15,
+        defense: 5,
+        lightningDamage: 15,
+      },
+    },
+    "dur-kul-mer": {
+      name: "Halving",
+      bonus: {
+        health: 40,
+        attackDamage: 15,
+        flameDamage: 25,
+        flameDamagePercent: 15,
+        flameResistance: 25,
+        allResistance: 15,
+      },
+    },
+    "ber-jah-ber": {
+      name: "Censorship-Resistant",
+      bonus: {
+        health: 40,
+        lowerAllResistance: 15,
+        skillTimeout: 30,
+        allResistance: 25,
+      },
+    },
+    "xno-xno-tor": {
+      name: "Ledger Bloat",
+      bonus: {
+        health: 60,
+        coldDamage: 25,
+        coldDamagePercent: 15,
+        coldResistance: 20,
+        freezeChance: 15,
+        magicFind: 15,
+        attackSpeed: 15,
+      },
+    },
+    "jah-shi-vod": {
+      name: "OMG!😭 Can't believe I won ! Thank you Walton team !",
+      bonus: {
+        health: 65,
+        attackDamage: 10,
+        absorbedDamage: 10,
+        magicFind: 15,
+        skillTimeout: 10,
+        allResistance: 15,
+        regenerateHealth: 25,
+        preventRegenerateHealth: 20,
       },
     },
   },

@@ -52,7 +52,7 @@ const commands = [
   "`!unlink` Unlink your Discord and your (Ba)NanoBrowserQuest account",
   "`!getroles` Refresh the roles assigned to your account.",
   "`!runelist` List the runes by rank and their attribute(s)\nYou can combine runes at the Anvil to get the next rank rune. Below rune rank 18 you need 3 of the same rune, above or equal is 2 runes.",
-  "`!runewords [armor|weapon|shield]` List the runewords that can be forged at the Anvil\nTo succesfully forge runewords you need to place the runes in a **non-unique** equipment in the exact order for the correct amount of sockets.",
+  "`!runewords [helm|armor|weapon|shield]` List the runewords that can be forged at the Anvil\nTo succesfully forge runewords you need to place the runes in a **non-unique** equipment in the exact order for the correct amount of sockets.",
 ];
 
 const channels = {
