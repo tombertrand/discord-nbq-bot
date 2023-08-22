@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import * as NanocurrencyWeb from "nanocurrency-web";
 import BigNumber from "bignumber.js";
 
@@ -8,9 +11,9 @@ const rawToRai = (raw: number) => {
 
 export const getPurchaseTotal = async () => {
   const wallets = await NanocurrencyWeb.wallet.legacyAccounts(
-    "",
+    process.env.DEPOSIT_SEED,
     0,
-    5000
+    10_000
   );
 
   const accounts = wallets.map(({ address }) => address);
@@ -56,3 +59,5 @@ export const getPurchaseTotal = async () => {
     console.log("~~~err", err);
   }
 };
+
+getPurchaseTotal();

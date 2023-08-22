@@ -44,16 +44,35 @@ const client = new Client({
   ],
 });
 
+const ADMINS = [
+  "running-coder",
+  "oldschooler",
+  "Baikie",
+  "Phet",
+  "CallMeCas",
+  "HeroOfNano",
+];
+
 const MAX_REPLY_LENGTH = 2000;
 const prefix = "!";
-const commands = [
-  "`!link` Link your Discord account to your (Ba)NanoBrowserQuest account\nThe Bot will DM you a secret key, login into your (Ba)NanoBrowserQuest account and type in the chat `!link SECRET`.",
-  "`!me` Show your player stats to other players, this command requires your Discord and (Ba)NanoBrowserQuest accounts to be linked",
-  "`!unlink` Unlink your Discord and your (Ba)NanoBrowserQuest account",
-  "`!getroles` Refresh the roles assigned to your account.",
-  "`!runelist` List the runes by rank and their attribute(s)\nYou can combine runes at the Anvil to get the next rank rune. Below rune rank 18 you need 3 of the same rune, above or equal is 2 runes.",
-  "`!runewords [helm|armor|weapon|shield]` List the runewords that can be forged at the Anvil\nTo succesfully forge runewords you need to place the runes in a **non-unique** equipment in the exact order for the correct amount of sockets.",
-];
+
+const getCommands = (isAdmin = false) => {
+  const commands = [
+    "`!link` Link your Discord account to your (Ba)NanoBrowserQuest account\nThe Bot will DM you a secret key, login into your (Ba)NanoBrowserQuest account and type in the chat `!link SECRET`.",
+    "`!me` Show your player stats to other players, this command requires your Discord and (Ba)NanoBrowserQuest accounts to be linked",
+    "`!unlink` Unlink your Discord and your (Ba)NanoBrowserQuest account",
+    "`!getroles` Refresh the roles assigned to your account.",
+    "`!runelist` List the runes by rank and their attribute(s)\nYou can combine runes at the Anvil to get the next rank rune. Below rune rank 18 you need 3 of the same rune, above or equal is 2 runes.",
+    "`!runewords [helm|armor|weapon|shield]` List the runewords that can be forged at the Anvil\nTo succesfully forge runewords you need to place the runes in a **non-unique** equipment in the exact order for the correct amount of sockets.",
+    "`!admins`List the game admins",
+  ].concat(
+    isAdmin
+      ? ["`!unban [playername] Admin only", "`!unbanip [playerip] Admin only"]
+      : []
+  );
+
+  return commands;
+};
 
 const channels = {
   general: "971429295186665536",
@@ -77,7 +96,48 @@ client.on("messageCreate", async (message) => {
   const command = args.shift()!.toLowerCase();
 
   if (command === "commands" || command === "help") {
-    message.reply(`Commands:\n${commands.join("\n")}`);
+    const key = `discord:${message.author.id}`;
+    const playerName = await redisClient.get(key );
+
+    console.log("~~~~key", key);
+    console.log("~~~~playerName", playerName);
+
+    const isAdmin = playerName && ADMINS.includes(playerName);
+    console.log("~~~~isAdmin", isAdmin);
+
+    message.reply(`Commands:\n${getCommands(isAdmin).join("\n")}`);
+  }
+  if (command === "unban") {
+    console.log("~~~~unban!!!");
+    const key = `discord:${message.author.id}`;
+    const playerName = await redisClient.get(key);
+
+    console.log("~~~~playerName", playerName);
+
+    const isAdmin = playerName && ADMINS.includes(playerName);
+    console.log("~~~~isAdmin", isAdmin);
+    const bannedPlayerName = args[0];
+
+    console.log("~~~~bannedPlayerName", bannedPlayerName);
+    if (!isAdmin) {
+      message.reply(
+        `Only admins can unban players, reach out to an admin and ask him to revise your ban`
+      );
+      return;
+    } else if (!bannedPlayerName) {
+      message.reply(`missing player name to unban`);
+      return;
+    }
+
+    const isPlayerBanned = await redisClient.exists(`ban:${bannedPlayerName}`);
+
+    if (!isPlayerBanned) {
+      message.reply(`${bannedPlayerName} is not banned`);
+      return;
+    }
+
+    await redisClient.del(`ban:${playerName}`);
+    message.reply(`${bannedPlayerName} was unbanned`);
   } else if (command === "ping") {
     const timeTaken = Date.now() - message.createdTimestamp;
     message.reply(`Pong! This message had a latency of ${timeTaken}ms.`);
@@ -206,6 +266,9 @@ client.on("messageCreate", async (message) => {
     message.reply(
       `Your account has been unlinked from ${playerName}, your roles were also cleared.`
     );
+  } else if (command === "admins") {
+    message.reply(`The game admins are ${ADMINS.join(", ")}.`);
+    return;
   } else if (command === "getroles") {
     const key = `discord:${message.author.id}`;
     const playerName = await redisClient.get(key);
