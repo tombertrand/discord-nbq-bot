@@ -70,7 +70,7 @@ const getCommands = (isAdmin = false) => {
       ? [
           "`!unban [playername]` Admin only, immadiate effect",
           "`!unbanip [playerip]` Admin only, immediate effect",
-          "`!chatUnban [playername]` Admin only, will take 5 minutes to take effect",
+          "`!chatunban [playername]` Admin only, will take 5 minutes to take effect",
         ]
       : []
   );
@@ -103,33 +103,22 @@ client.on("messageCreate", async (message) => {
     const key = `discord:${message.author.id}`;
     const playerName = await redisClient.get(key);
 
-    console.log("~~~~key", key);
-    console.log("~~~~playerName", playerName);
-
-    const isAdmin = playerName && ADMINS.includes(playerName);
-    console.log("~~~~isAdmin", isAdmin);
+    const isAdmin = playerName ? ADMINS.includes(playerName) : false;
 
     message.reply(`Commands:\n${getCommands(isAdmin).join("\n")}`);
-  }
-  if (command === "unban" || command === "chatUnban" || command === "unbanip") {
-    console.log("~~~~unban!!!");
+  } else if (["unban", "chatunban", "unbanip"].includes(command)) {
     const key = `discord:${message.author.id}`;
     const adminPlayerName = await redisClient.get(key);
-
     let redisKey = "ban";
     if (command === "unbanip") {
       redisKey = "ipban";
-    } else if (command === "chatUnban") {
+    } else if (command === "chatunban") {
       redisKey = "chatBan";
     }
-
-    console.log("~~~~adminPlayerName", adminPlayerName);
-
     const isAdmin = adminPlayerName && ADMINS.includes(adminPlayerName);
-    console.log("~~~~isAdmin", isAdmin);
+
     const bannedPlayerNameOrIp = args[0];
 
-    console.log("~~~~bannedPlayerNameOrIp", bannedPlayerNameOrIp);
     if (!isAdmin) {
       message.reply(
         `Only admins can unban players, reach out to an admin and ask him to revise your ban`
@@ -147,6 +136,7 @@ client.on("messageCreate", async (message) => {
         redisKey,
         bannedPlayerNameOrIp
       );
+
       if (!isPlayerBanned) {
         message.reply(`${bannedPlayerNameOrIp} is not banned`);
         return;
