@@ -67,7 +67,11 @@ const getCommands = (isAdmin = false) => {
     "`!admins`List the game admins",
   ].concat(
     isAdmin
-      ? ["`!unban [playername] Admin only", "`!unbanip [playerip] Admin only"]
+      ? [
+          "`!unban [playername] Admin only, immadiate effect",
+          "`!unbanip [playerip] Admin only, immediate effect",
+          "!chatUnban [playername] Admin only, will take 5 minutes to take effect",
+        ]
       : []
   );
 
@@ -97,7 +101,7 @@ client.on("messageCreate", async (message) => {
 
   if (command === "commands" || command === "help") {
     const key = `discord:${message.author.id}`;
-    const playerName = await redisClient.get(key );
+    const playerName = await redisClient.get(key);
 
     console.log("~~~~key", key);
     console.log("~~~~playerName", playerName);
@@ -107,10 +111,17 @@ client.on("messageCreate", async (message) => {
 
     message.reply(`Commands:\n${getCommands(isAdmin).join("\n")}`);
   }
-  if (command === "unban") {
+  if (command === "unban" || command === "chatUnban" || command === "unbanip") {
     console.log("~~~~unban!!!");
     const key = `discord:${message.author.id}`;
     const playerName = await redisClient.get(key);
+
+    let redisKey = "ban";
+    if (command === "unbanip") {
+      redisKey = "ipban";
+    } else if (command === "chatUnban") {
+      redisKey = "chatBan";
+    }
 
     console.log("~~~~playerName", playerName);
 
@@ -129,14 +140,16 @@ client.on("messageCreate", async (message) => {
       return;
     }
 
-    const isPlayerBanned = await redisClient.exists(`ban:${bannedPlayerName}`);
+    const isPlayerBanned = await redisClient.exists(
+      `${redisKey}:${bannedPlayerName}`
+    );
 
     if (!isPlayerBanned) {
       message.reply(`${bannedPlayerName} is not banned`);
       return;
     }
 
-    await redisClient.del(`ban:${playerName}`);
+    await redisClient.del(`${redisKey}:${playerName}`);
     message.reply(`${bannedPlayerName} was unbanned`);
   } else if (command === "ping") {
     const timeTaken = Date.now() - message.createdTimestamp;
