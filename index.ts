@@ -114,7 +114,7 @@ client.on("messageCreate", async (message) => {
   if (command === "unban" || command === "chatUnban" || command === "unbanip") {
     console.log("~~~~unban!!!");
     const key = `discord:${message.author.id}`;
-    const playerName = await redisClient.get(key);
+    const adminPlayerName = await redisClient.get(key);
 
     let redisKey = "ban";
     if (command === "unbanip") {
@@ -123,36 +123,48 @@ client.on("messageCreate", async (message) => {
       redisKey = "chatBan";
     }
 
-    console.log("~~~~playerName", playerName);
+    console.log("~~~~adminPlayerName", adminPlayerName);
 
-    const isAdmin = playerName && ADMINS.includes(playerName);
+    const isAdmin = adminPlayerName && ADMINS.includes(adminPlayerName);
     console.log("~~~~isAdmin", isAdmin);
-    const bannedPlayerName = args[0];
+    const bannedPlayerNameOrIp = args[0];
 
-    console.log("~~~~bannedPlayerName", bannedPlayerName);
+    console.log("~~~~bannedPlayerNameOrIp", bannedPlayerNameOrIp);
     if (!isAdmin) {
       message.reply(
         `Only admins can unban players, reach out to an admin and ask him to revise your ban`
       );
       return;
-    } else if (!bannedPlayerName) {
-      message.reply(`missing player name to unban`);
+    } else if (!bannedPlayerNameOrIp) {
+      message.reply(`missing player name or IP to unban`);
       return;
     }
 
-    const isPlayerBanned = await redisClient.exists(
-      `${redisKey}:${bannedPlayerName}`
-    );
+    let isPlayerBanned = false;
 
-    if (!isPlayerBanned) {
-      message.reply(`${bannedPlayerName} is not banned`);
-      return;
+    if (redisKey === "chatBan") {
+      isPlayerBanned = await redisClient.hExists(
+        redisKey,
+        bannedPlayerNameOrIp
+      );
+      if (!isPlayerBanned) {
+        message.reply(`${bannedPlayerNameOrIp} is not banned`);
+        return;
+      }
+
+      await redisClient.hDel(redisKey, bannedPlayerNameOrIp);
+    } else if (redisKey === "ban" || redisKey === "ipban") {
+      isPlayerBanned = !!(await redisClient.exists(
+        `${redisKey}:${bannedPlayerNameOrIp}`
+      ));
+      if (!isPlayerBanned) {
+        message.reply(`${bannedPlayerNameOrIp} is not banned`);
+        return;
+      }
+      await redisClient.del(`${redisKey}:${bannedPlayerNameOrIp}`);
     }
 
-    await redisClient.del(
-      `${redisKey}:${command === "unbanip" ? bannedPlayerName : playerName}`
-    );
-    message.reply(`${bannedPlayerName} was unbanned`);
+    message.reply(`${bannedPlayerNameOrIp} was unbanned`);
   } else if (command === "ping") {
     const timeTaken = Date.now() - message.createdTimestamp;
     message.reply(`Pong! This message had a latency of ${timeTaken}ms.`);
