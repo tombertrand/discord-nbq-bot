@@ -68,9 +68,9 @@ const getCommands = (isAdmin = false) => {
   ].concat(
     isAdmin
       ? [
-          "`!unban [playername] Admin only, immadiate effect",
-          "`!unbanip [playerip] Admin only, immediate effect",
-          "!chatUnban [playername] Admin only, will take 5 minutes to take effect",
+          "`!unban [playername]` Admin only, immadiate effect",
+          "`!unbanip [playerip]` Admin only, immediate effect",
+          "`!chatUnban [playername]` Admin only, will take 5 minutes to take effect",
         ]
       : []
   );
@@ -149,7 +149,9 @@ client.on("messageCreate", async (message) => {
       return;
     }
 
-    await redisClient.del(`${redisKey}:${playerName}`);
+    await redisClient.del(
+      `${redisKey}:${command === "unbanip" ? bannedPlayerName : playerName}`
+    );
     message.reply(`${bannedPlayerName} was unbanned`);
   } else if (command === "ping") {
     const timeTaken = Date.now() - message.createdTimestamp;
