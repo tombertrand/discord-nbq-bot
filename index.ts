@@ -51,6 +51,7 @@ const ADMINS = [
   "Phet",
   "CallMeCas",
   "HeroOfNano",
+  "Dyllux",
 ];
 
 const MAX_REPLY_LENGTH = 2000;
@@ -71,6 +72,7 @@ const getCommands = (isAdmin = false) => {
           "`!unban [playername]` Admin only, immadiate effect",
           "`!unbanip [playerip]` Admin only, immediate effect",
           "`!chatunban [playername]` Admin only, will take 5 minutes to take effect",
+          "`!reason [playername]` Admin only, give out the reason why player was banned",
         ]
       : []
   );
@@ -106,7 +108,7 @@ client.on("messageCreate", async (message) => {
     const isAdmin = playerName ? ADMINS.includes(playerName) : false;
 
     message.reply(`Commands:\n${getCommands(isAdmin).join("\n")}`);
-  } else if (["unban", "chatunban", "unbanip"].includes(command)) {
+  } else if (["unban", "chatunban", "unbanip", "reason"].includes(command)) {
     const key = `discord:${message.author.id}`;
     const adminPlayerName = await redisClient.get(key);
     let redisKey = "ban";
@@ -131,16 +133,26 @@ client.on("messageCreate", async (message) => {
 
     let isPlayerBanned = false;
 
-    if (redisKey === "chatBan") {
+    if (redisKey === "chatBan" || command === "reason") {
       isPlayerBanned = await redisClient.hExists(
         redisKey,
         bannedPlayerNameOrIp
       );
-
       if (!isPlayerBanned) {
         message.reply(`${bannedPlayerNameOrIp} is not banned`);
         return;
       }
+
+      // if (command === "reason") {
+      //   console.log("~~~bannedPlayerNameOrIp", bannedPlayerNameOrIp);
+      //   const banDetails = await redisClient.hGetAll(
+      //     `ban:${bannedPlayerNameOrIp}`,
+
+      //     (error, reply) => {
+      //       console.log("~~~~reply", reply);
+      //     }
+      //   );
+      // }
 
       await redisClient.hDel(redisKey, bannedPlayerNameOrIp);
     } else if (redisKey === "ban" || redisKey === "ipban") {
