@@ -85,12 +85,17 @@ const channels = {
   jungle: "971536705121300490",
   support: "971429767842779146",
   betaChat: "1058466758077468782",
+  supportBotTest: "1149048949928370326",
 };
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
-  if (![channels.support, channels.betaChat].includes(message.channelId)) {
+  if (
+    ![channels.support, channels.betaChat, channels.supportBotTest].includes(
+      message.channelId
+    )
+  ) {
     message.reply(
       `You may only use bot commands in the <#${channels.support}> channel`
     );
@@ -133,26 +138,50 @@ client.on("messageCreate", async (message) => {
 
     let isPlayerBanned = false;
 
-    if (redisKey === "chatBan" || command === "reason") {
+    if (redisKey === "chatBan") {
       isPlayerBanned = await redisClient.hExists(
         redisKey,
         bannedPlayerNameOrIp
       );
-      if (!isPlayerBanned) {
-        message.reply(`${bannedPlayerNameOrIp} is not banned`);
-        return;
+    } else if (command === "reason") {
+      isPlayerBanned = !!(await redisClient.exists(
+        `${redisKey}:${bannedPlayerNameOrIp}`
+      ));
+
+      if (isPlayerBanned) {
+        const banDetails = await redisClient.hGetAll(
+          `ban:${bannedPlayerNameOrIp}`
+        );
+
+        const { timestamp, reason, message: banMessage, admin } = banDetails;
+
+        if (banDetails) {
+          message.reply(
+            [
+              bannedPlayerNameOrIp
+                ? `Player: ${bannedPlayerNameOrIp} is banned`
+                : "",
+              admin ? `by admin: ${admin}` : "",
+              timestamp ? `until: ${new Date(Number(timestamp))}` : "",
+              reason ? `reason: ${reason}` : "",
+              banMessage ? `message: ${banMessage}` : "",
+            ].join("\n")
+          );
+
+          return;
+        }
       }
+    }
 
-      // if (command === "reason") {
-      //   console.log("~~~bannedPlayerNameOrIp", bannedPlayerNameOrIp);
-      //   const banDetails = await redisClient.hGetAll(
-      //     `ban:${bannedPlayerNameOrIp}`,
+    if (!isPlayerBanned) {
+      message.reply(`${bannedPlayerNameOrIp} is not banned`);
+      return;
+    }
 
-      //     (error, reply) => {
-      //       console.log("~~~~reply", reply);
-      //     }
-      //   );
-      // }
+    if (redisKey === "chatBan" || command === "reason") {
+      if (command === "reason") {
+        console.log("~~~bannedPlayerNameOrIp", bannedPlayerNameOrIp);
+      }
 
       await redisClient.hDel(redisKey, bannedPlayerNameOrIp);
     } else if (redisKey === "ban" || redisKey === "ipban") {
@@ -162,8 +191,9 @@ client.on("messageCreate", async (message) => {
       if (!isPlayerBanned) {
         message.reply(`${bannedPlayerNameOrIp} is not banned`);
         return;
+      } else {
+        await redisClient.del(`${redisKey}:${bannedPlayerNameOrIp}`);
       }
-      await redisClient.del(`${redisKey}:${bannedPlayerNameOrIp}`);
     }
 
     message.reply(`${bannedPlayerNameOrIp} was unbanned`);
