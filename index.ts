@@ -65,7 +65,7 @@ const getCommands = (isAdmin = false) => {
     "`!getroles` Refresh the roles assigned to your account.",
     "`!runelist` List the runes by rank and their attribute(s)\nYou can combine runes at the Anvil to get the next rank rune. Below rune rank 18 you need 3 of the same rune, above or equal is 2 runes.",
     "`!runewords [helm|armor|weapon|shield]` List the runewords that can be forged at the Anvil\nTo succesfully forge runewords you need to place the runes in a **non-unique** equipment in the exact order for the correct amount of sockets.",
-    "`!admins`List the game admins",
+    "`!admins` List the game admins",
   ].concat(
     isAdmin
       ? [
@@ -131,10 +131,14 @@ client.on("messageCreate", async (message) => {
     }
 
     let isPlayerBanned = false;
+    let isPlayerChatBanned = !!(await redisClient.hExists(
+      `chatBan`,
+      bannedPlayerName
+    ));
 
-    if (command === "chatunban") {
-      isPlayerBanned = await redisClient.hExists("chatBan", bannedPlayerName);
-    } else if (command === "reason") {
+    // if (command === "chatunban") {
+    //   isPlayerBanned = await redisClient.hExists("chatBan", bannedPlayerName);
+    if (command === "reason") {
       isPlayerBanned = !!(await redisClient.exists(`ban:${bannedPlayerName}`));
 
       if (isPlayerBanned) {
@@ -157,11 +161,6 @@ client.on("messageCreate", async (message) => {
         }
       }
 
-      let isPlayerChatBanned = !!(await redisClient.hExists(
-        `chatBan`,
-        bannedPlayerName
-      ));
-
       if (isPlayerChatBanned) {
         const chatbanDetails = await redisClient.hGet(
           "chatBan",
@@ -181,8 +180,13 @@ client.on("messageCreate", async (message) => {
         }
         return;
       }
-    } else if (command === "chatunban") {
+    } else if (command === "chatunban" && isPlayerChatBanned) {
       await redisClient.hDel("chatBan", bannedPlayerName);
+
+      message.reply(
+        `${bannedPlayerName} was unbanned from chat (5 mins delay)`
+      );
+      return;
     } else if (command === "unban") {
       isPlayerBanned = !!(await redisClient.exists(`ban:${bannedPlayerName}`));
       const ipbans = await redisClient.keys("ipban:*");
