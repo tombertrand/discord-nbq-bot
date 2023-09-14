@@ -53,6 +53,7 @@ const ADMINS = [
   "HeroOfNano",
   "Dyllux",
   "CelioSevii",
+  "xDulfinz",
 ];
 
 const MAX_REPLY_LENGTH = 2000;
