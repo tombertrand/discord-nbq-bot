@@ -363,6 +363,7 @@ client.on("messageCreate", async (message) => {
     const achievement = JSON.parse(player.achievement);
     const isSkeletonKingDefeated = !!achievement[20];
     const isNecromancerDefeated = !!achievement[36];
+    const isAzraelDefeated = !!achievement[69];
     const network = player.network;
 
     const assignedRoleNames = [];
@@ -370,6 +371,7 @@ client.on("messageCreate", async (message) => {
     let levelRole;
     let skeletonKingRole;
     let necromancerRole;
+    let azraelRole;
     let networkRole;
 
     // Level
@@ -408,8 +410,16 @@ client.on("messageCreate", async (message) => {
         message.member?.roles.add(necromancerRole);
       }
     }
-    // @TODO Death Angel role!
+    if (isAzraelDefeated) {
+      azraelRole = message.guild?.roles.cache.find(
+        (role) => role.id === RolesMap.azrael
+      );
 
+      if (azraelRole) {
+        assignedRoleNames.push(azraelRole.name);
+        message.member?.roles.add(azraelRole);
+      }
+    }
     // Network
     if (network) {
       networkRole = message.guild?.roles.cache.find(
