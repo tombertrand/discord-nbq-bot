@@ -82,13 +82,10 @@ export const expForLevel = [
 
 export const getLevel = function (exp: number) {
   var i = 1;
-  for (i = 1; i < 135; i++) {
-    if (
-      exp < expForLevel[i] ||
-      (exp === expForLevel[i] && i === expForLevel.length - 1)
-    ) {
+  for (i = 1; i < expForLevel.length; i++) {
+    if (exp < expForLevel[i]) {
       return i;
     }
   }
-  return 135;
+  return i;
 };
