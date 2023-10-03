@@ -11,7 +11,7 @@ const rawToRai = (raw: number) => {
 
 export const getPurchaseTotal = async () => {
   const wallets = await NanocurrencyWeb.wallet.legacyAccounts(
-    process.env.DEPOSIT_SEED,
+    process.env.DEPOSIT_SEED as string,
     0,
     10_000
   );
@@ -22,7 +22,7 @@ export const getPurchaseTotal = async () => {
   let receivable = 0;
 
   try {
-    const res = await fetch(`http://68.183.110.185:7076`, {
+    const res = await fetch(`http:/137.184.26.216:7076`, {
       method: "POST",
       headers: {
         Accept: "application/json",

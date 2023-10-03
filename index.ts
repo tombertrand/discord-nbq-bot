@@ -30,7 +30,9 @@ setImmediate(async () => {
       redisClient.select(parseInt(REDIS_DB_INDEX, 10));
     }
   });
+});
 
+redisClient.on("end", async () => {
   await redisClient.connect();
 });
 
@@ -120,7 +122,7 @@ client.on("messageCreate", async (message) => {
 
     const isAdmin = adminPlayerName && ADMINS.includes(adminPlayerName);
 
-    const bannedPlayerName = args[0];
+    const bannedPlayerName = args.join(" ");
 
     if (!isAdmin) {
       message.reply(
@@ -363,6 +365,10 @@ client.on("messageCreate", async (message) => {
     const achievement = JSON.parse(player.achievement);
     const isSkeletonKingDefeated = !!achievement[20];
     const isNecromancerDefeated = !!achievement[36];
+
+    const isCowKingDefeated = !!achievement[41];
+    const isSpiderQueenDefeated = !!achievement[53];
+    const isGoreFiendDefeated = !!achievement[59];
     const isAzraelDefeated = !!achievement[69];
     const network = player.network;
 
@@ -371,6 +377,9 @@ client.on("messageCreate", async (message) => {
     let levelRole;
     let skeletonKingRole;
     let necromancerRole;
+    let cowKingRole;
+    let goreFiendRole;
+    let spiderQueenRole;
     let azraelRole;
     let networkRole;
 
@@ -410,6 +419,17 @@ client.on("messageCreate", async (message) => {
         message.member?.roles.add(necromancerRole);
       }
     }
+
+    if (isCowKingDefeated) {
+      cowKingRole = message.guild?.roles.cache.find(
+        (role) => role.id === RolesMap.cowKing
+      );
+
+      if (cowKingRole) {
+        assignedRoleNames.push(cowKingRole.name);
+        message.member?.roles.add(cowKingRole);
+      }
+    }
     if (isAzraelDefeated) {
       azraelRole = message.guild?.roles.cache.find(
         (role) => role.id === RolesMap.azrael
@@ -418,6 +438,26 @@ client.on("messageCreate", async (message) => {
       if (azraelRole) {
         assignedRoleNames.push(azraelRole.name);
         message.member?.roles.add(azraelRole);
+      }
+    }
+    if (isGoreFiendDefeated) {
+      goreFiendRole = message.guild?.roles.cache.find(
+        (role) => role.id === RolesMap.goreFiend
+      );
+
+      if (goreFiendRole) {
+        assignedRoleNames.push(goreFiendRole.name);
+        message.member?.roles.add(goreFiendRole);
+      }
+    }
+    if (isSpiderQueenDefeated) {
+      spiderQueenRole = message.guild?.roles.cache.find(
+        (role) => role.id === RolesMap.spiderQueen
+      );
+
+      if (spiderQueenRole) {
+        assignedRoleNames.push(spiderQueenRole.name);
+        message.member?.roles.add(spiderQueenRole);
       }
     }
     // Network
