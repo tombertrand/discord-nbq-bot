@@ -14,26 +14,23 @@ import { getLevel } from "./experience";
 const { REDIS_PORT, REDIS_HOST, REDIS_DB_INDEX, REDIS_PASSWORD, BOT_TOKEN } =
   process.env;
 
-const redisClient = createClient({
-  url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
-  password: REDIS_PASSWORD,
-  database: 0,
-});
-
-// getPurchaseTotal();
-
+//@ts-ignore
+let redisClient: any;
 setImmediate(async () => {
-  redisClient.on("error", (err) => console.log("Redis Client Error", err));
+  redisClient = await createClient({
+    url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
+    password: REDIS_PASSWORD,
+    database: 0,
+  })
+    .on("error", (err) => console.log("Redis Client Error", err))
+    .connect();
 
-  redisClient.on("connect", () => {
+  redisClient.on("connect", async () => {
     if (REDIS_DB_INDEX) {
+      //@ts-ignore
       redisClient.select(parseInt(REDIS_DB_INDEX, 10));
     }
   });
-});
-
-redisClient.on("end", async () => {
-  await redisClient.connect();
 });
 
 const client = new Client({
@@ -195,7 +192,7 @@ client.on("messageCreate", async (message) => {
       isPlayerBanned = !!(await redisClient.exists(`ban:${bannedPlayerName}`));
       const ipbans = await redisClient.keys("ipban:*");
 
-      ipbans?.map(async (ipKey) => {
+      ipbans?.map(async (ipKey: string) => {
         const player = await redisClient.hGet(ipKey, "player");
 
         if (player === bannedPlayerName) {

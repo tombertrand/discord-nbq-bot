@@ -15,7 +15,7 @@
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "nanocurrency-web": "^1.4.3",
-    "redis": "^4.5.1"
+    "redis": "^4.6.10"
   },
   "devDependencies": {
     "nodemon": "^2.0.20",
