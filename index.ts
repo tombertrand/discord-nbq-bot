@@ -85,14 +85,14 @@ const channels = {
   jungle: "971536705121300490",
   support: "971429767842779146",
   betaChat: "1058466758077468782",
-  supportBotTest: "1149048949928370326",
+  moderatorSupport: "1149048949928370326",
 };
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
   if (
-    ![channels.support, channels.betaChat, channels.supportBotTest].includes(
+    ![channels.support, channels.betaChat, channels.moderatorSupport].includes(
       message.channelId
     )
   ) {
@@ -136,14 +136,14 @@ client.on("messageCreate", async (message) => {
       `chatBan`,
       bannedPlayerName
     ));
-
+    let banDetails;
     // if (command === "chatunban") {
     //   isPlayerBanned = await redisClient.hExists("chatBan", bannedPlayerName);
     if (command === "reason") {
       isPlayerBanned = !!(await redisClient.exists(`ban:${bannedPlayerName}`));
 
       if (isPlayerBanned) {
-        const banDetails = await redisClient.hGetAll(`ban:${bannedPlayerName}`);
+        banDetails = await redisClient.hGetAll(`ban:${bannedPlayerName}`);
 
         const { timestamp, reason, message: banMessage, admin } = banDetails;
 
@@ -160,6 +160,11 @@ client.on("messageCreate", async (message) => {
 
           return;
         }
+      }
+
+      if (!isPlayerBanned && !banDetails) {
+        message.reply(`${bannedPlayerName} is not banned`);
+        return;
       }
 
       if (isPlayerChatBanned) {
@@ -190,6 +195,7 @@ client.on("messageCreate", async (message) => {
       return;
     } else if (command === "unban") {
       isPlayerBanned = !!(await redisClient.exists(`ban:${bannedPlayerName}`));
+
       const ipbans = await redisClient.keys("ipban:*");
 
       ipbans?.map(async (ipKey: string) => {
@@ -200,7 +206,7 @@ client.on("messageCreate", async (message) => {
           message.reply(`${bannedPlayerName} IP ban is now lifted`);
         }
       });
-     
+
       if (isPlayerBanned) {
         await redisClient.del(`ban:${bannedPlayerName}`);
         message.reply(`${bannedPlayerName} was unbanned`);
