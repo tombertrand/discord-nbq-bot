@@ -154,7 +154,7 @@ client.on("messageCreate", async (message) => {
               admin ? `by admin: ${admin}` : "",
               timestamp ? `until: ${new Date(Number(timestamp))}` : "",
               reason ? `reason: ${reason}` : "",
-              banMessage ? `message: ${banMessage}` : "",
+              banMessage ? `message: ${banMessage.replace("@", "")}` : "",
             ].join("\n")
           );
 
@@ -366,6 +366,7 @@ client.on("messageCreate", async (message) => {
     const isCowKingDefeated = !!achievement[41];
     const isSpiderQueenDefeated = !!achievement[53];
     const isGoreFiendDefeated = !!achievement[59];
+
     const isAzraelDefeated = !!achievement[69];
     const network = player.network;
 
