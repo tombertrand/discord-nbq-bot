@@ -200,7 +200,7 @@ client.on("messageCreate", async (message) => {
           message.reply(`${bannedPlayerName} IP ban is now lifted`);
         }
       });
-
+     
       if (isPlayerBanned) {
         await redisClient.del(`ban:${bannedPlayerName}`);
         message.reply(`${bannedPlayerName} was unbanned`);

@@ -27,7 +27,7 @@ client.on("connect",async function () {
   await getNanoBrowserQuestItemScan();
 });
 
-client.on("error", function (err) {
+client.on("error", function (err:Error) {
   Sentry.captureException(err);
 });
 
@@ -36,7 +36,7 @@ const getNanoBrowserQuestItemScan = async () => {
   console.log('~~~1')
   try {
     const PER_PAGES = 500;
-    client.keys("u:*", async (_err, players) => {
+    client.keys("u:*", async (_err: Error, players:any[]) => {
 
       const playersChunks = chunk(players, PER_PAGES);
 
@@ -44,14 +44,14 @@ const getNanoBrowserQuestItemScan = async () => {
 
         const rawPlayerData = await Promise.all(
           playersChunks[i].map(
-            (player) =>
+            (player:any) =>
               new Promise((resolve) => {
                 client.hmget(
                   player,
                   "inventory",
                   "stash",
 
-                  (_err, reply) => {
+                  (_err:Error, reply:any[]) => {
                     const rAwInventory = reply[0];
                     const rawStash = reply[1];
 
