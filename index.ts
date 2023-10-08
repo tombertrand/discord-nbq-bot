@@ -255,10 +255,14 @@ client.on("messageCreate", async (message) => {
   } else if (command === "runewords" || command === "runeword") {
     let reply = "";
     let equipmentTypes = Object.keys(Runewords);
+    let equipmentType = args[0];
+    if (equipmentType === "helmet") {
+      equipmentType = "helm";
+    }
 
     if (args[0]) {
-      if (equipmentTypes.includes(args[0])) {
-        equipmentTypes = [args[0]];
+      if (equipmentTypes.includes(equipmentType)) {
+        equipmentTypes = [equipmentType];
       } else {
         equipmentTypes = [];
         reply = `${args[0]} is not a valid item type`;
