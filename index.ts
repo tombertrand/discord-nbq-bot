@@ -177,7 +177,7 @@ client.on("messageCreate", async (message) => {
         }
       }
 
-      if (!isPlayerBanned && !banDetails&& !isPlayerChatBanned) {
+      if (!isPlayerBanned && !banDetails && !isPlayerChatBanned) {
         message.reply(`${bannedPlayerName} is not banned`);
         return;
       }
@@ -187,7 +187,6 @@ client.on("messageCreate", async (message) => {
           "chatBan",
           bannedPlayerName
         );
-
 
         if (chatbanDetails) {
           try {
@@ -388,7 +387,7 @@ client.on("messageCreate", async (message) => {
     const isCowKingDefeated = !!achievement[41];
     const isSpiderQueenDefeated = !!achievement[53];
     const isGoreFiendDefeated = !!achievement[59];
-
+    const isGrimoireFound = !!achievement[77];
     const isAzraelDefeated = !!achievement[69];
     const network = player.network;
 
@@ -401,6 +400,7 @@ client.on("messageCreate", async (message) => {
     let goreFiendRole;
     let spiderQueenRole;
     let azraelRole;
+    let grimoireRole;
     let networkRole;
 
     // Level
@@ -458,6 +458,16 @@ client.on("messageCreate", async (message) => {
       if (azraelRole) {
         assignedRoleNames.push(azraelRole.name);
         message.member?.roles.add(azraelRole);
+      }
+    }
+    if (isGrimoireFound) {
+      grimoireRole = message.guild?.roles.cache.find(
+        (role) => role.id === RolesMap.grimoire
+      );
+
+      if (grimoireRole) {
+        assignedRoleNames.push(grimoireRole.name);
+        message.member?.roles.add(grimoireRole);
       }
     }
     if (isGoreFiendDefeated) {
