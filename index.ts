@@ -72,6 +72,7 @@ const getCommands = (isAdmin = false) => {
       ? [
           "`!unban [playername]` Admin only, immadiate effect",
           "`!chatunban [playername]` Admin only, will take 5 minutes to take effect",
+          "`!chatban [playername]` Admin only, will take 5 minutes to take effect",
           "`!reason [playername]` Admin only, give out the reason why player was banned",
         ]
       : []
@@ -113,7 +114,7 @@ client.on("messageCreate", async (message) => {
     const isAdmin = playerName ? ADMINS.includes(playerName) : false;
 
     message.reply(`Commands:\n${getCommands(isAdmin).join("\n")}`);
-  } else if (["unban", "chatunban", "reason"].includes(command)) {
+  } else if (["unban", "chatunban", "chatban", "reason"].includes(command)) {
     const key = `discord:${message.author.id}`;
     const adminPlayerName = await redisClient.get(key);
 
@@ -127,7 +128,7 @@ client.on("messageCreate", async (message) => {
       );
       return;
     } else if (!bannedPlayerName) {
-      message.reply(`missing player name or IP to unban`);
+      message.reply(`missing player name to unban`);
       return;
     }
 
@@ -137,9 +138,23 @@ client.on("messageCreate", async (message) => {
       bannedPlayerName
     ));
     let banDetails;
-    // if (command === "chatunban") {
-    //   isPlayerBanned = await redisClient.hExists("chatBan", bannedPlayerName);
-    if (command === "reason") {
+    if (command === "chatban") {
+      if (isPlayerChatBanned) {
+        message.reply(`${bannedPlayerName} is already chat banned`);
+      } else {
+        await redisClient.hSet(
+          `chatBan`,
+          bannedPlayerName,
+          JSON.stringify({
+            message: "manual chat ban from Discord",
+            admin: adminPlayerName,
+          })
+        );
+        message.reply(`${bannedPlayerName} is now chat banned`);
+        return;
+      }
+      return;
+    } else if (command === "reason") {
       isPlayerBanned = !!(await redisClient.exists(`ban:${bannedPlayerName}`));
 
       if (isPlayerBanned) {
@@ -162,7 +177,7 @@ client.on("messageCreate", async (message) => {
         }
       }
 
-      if (!isPlayerBanned && !banDetails) {
+      if (!isPlayerBanned && !banDetails&& !isPlayerChatBanned) {
         message.reply(`${bannedPlayerName} is not banned`);
         return;
       }
@@ -172,6 +187,7 @@ client.on("messageCreate", async (message) => {
           "chatBan",
           bannedPlayerName
         );
+
 
         if (chatbanDetails) {
           try {
