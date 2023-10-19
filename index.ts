@@ -54,6 +54,7 @@ const ADMINS = [
   "Bella",
   // "CelioSevii",
   "xDulfinz",
+  "bruin",
 ];
 
 const MAX_REPLY_LENGTH = 2000;
