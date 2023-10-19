@@ -51,7 +51,8 @@ const ADMINS = [
   "CallMeCas",
   "HeroOfNano",
   "Dyllux",
-  "CelioSevii",
+  "Bella",
+  // "CelioSevii",
   "xDulfinz",
 ];
 
@@ -265,7 +266,7 @@ client.on("messageCreate", async (message) => {
         equipmentTypes = [equipmentType];
       } else {
         equipmentTypes = [];
-        reply = `${args[0]} is not a valid item type`;
+        reply = `${args[0]} is not a valid item type, use one of the following:[helm|armor|weapon|shield]`;
       }
     }
 
