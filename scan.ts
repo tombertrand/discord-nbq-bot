@@ -4,8 +4,7 @@ dotenv.config();
 const redis = require("redis");
 const chunk = require("lodash/chunk");
 
-const {Sentry}= require("./sentry") 
-
+const { Sentry } = require("./sentry");
 
 const {
   NBQ_REDIS_PORT,
@@ -20,38 +19,40 @@ const client = redis.createClient(NBQ_REDIS_PORT, NBQ_REDIS_HOST, {
 
 // client.connect();
 
-client.on("connect",async function () {
+client.on("connect", async function () {
   client.select(NBQ_REDIS_DB_INDEX); // NBQ DB
   console.log("Connected to Redis");
 
   await getNanoBrowserQuestItemScan();
 });
 
-client.on("error", function (err:Error) {
+client.on("error", function (err: Error) {
   Sentry.captureException(err);
 });
 
 const getNanoBrowserQuestItemScan = async () => {
   let res;
-  console.log('~~~1')
+  console.log("~~~1");
   try {
+    console.log("~~~2");
     const PER_PAGES = 500;
-    client.keys("u:*", async (_err: Error, players:any[]) => {
-
+    client.keys("u:*", async (_err: Error, players: any[]) => {
+      console.log("~_err", _err);
+      console.log("~players", players);
       const playersChunks = chunk(players, PER_PAGES);
+      console.log("~~~playersChunks", playersChunks);
 
       for (let i = 0; i < playersChunks.length; i++) {
-
         const rawPlayerData = await Promise.all(
           playersChunks[i].map(
-            (player:any) =>
+            (player: any) =>
               new Promise((resolve) => {
                 client.hmget(
                   player,
                   "inventory",
                   "stash",
 
-                  (_err:Error, reply:any[]) => {
+                  (_err: Error, reply: any[]) => {
                     const rAwInventory = reply[0];
                     const rawStash = reply[1];
 
@@ -59,21 +60,22 @@ const getNanoBrowserQuestItemScan = async () => {
                       const inventory = JSON.parse(rAwInventory);
                       const stash = JSON.parse(rawStash);
 
-                      const someBarInventory = inventory &&inventory.some(
-                        (item: string | number) =>
-                          typeof item === "string" && (
-        
-                          (item.startsWith("bargold") ||
-                          item.startsWith("stonesocketblessed"))
-                      ))
-                      const someBarStash = stash && stash.some(
-                        (item: string | number) =>
-                         
-                            typeof item === "string" && (
-        
-                              (item.startsWith("bargold") ||
-                              item.startsWith("stonesocketblessed"))
-                      ))
+                      const someBarInventory =
+                        inventory &&
+                        inventory.some(
+                          (item: string | number) =>
+                            typeof item === "string" &&
+                            (item.startsWith("bargold") ||
+                              item.startsWith("chestdead"))
+                        );
+                      const someBarStash =
+                        stash &&
+                        stash.some(
+                          (item: string | number) =>
+                            typeof item === "string" &&
+                            (item.startsWith("bargold") ||
+                              item.startsWith("chestdead"))
+                        );
 
                       if (someBarInventory) {
                         console.log("someBarInventoryplayer", player);
@@ -83,7 +85,7 @@ const getNanoBrowserQuestItemScan = async () => {
                         console.log("someBarStash", player);
                       }
 
-                      resolve(true)
+                      resolve(true);
                     } catch (err) {
                       console.log("~~~err", err);
                     }
@@ -96,6 +98,6 @@ const getNanoBrowserQuestItemScan = async () => {
     });
   } catch (err) {
     console.log("Error", err);
-    Sentry.captureException(err, { extra: { res } }); 
+    Sentry.captureException(err, { extra: { res } });
   }
 };
