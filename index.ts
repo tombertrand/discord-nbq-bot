@@ -51,7 +51,6 @@ const ADMINS = [
   // "CallMeCas", 
   "HeroOfNano",
   "Dyllux",
-  "Bella",
   "CelioSevii",
   "xDulfinz",
   "bruin",
