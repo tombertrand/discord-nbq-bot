@@ -15,23 +15,29 @@ const { REDIS_PORT, REDIS_HOST, REDIS_DB_INDEX, REDIS_PASSWORD, BOT_TOKEN } =
   process.env;
 
 //@ts-ignore
-let redisClient: any;
-setImmediate(async () => {
-  redisClient = await createClient({
-    url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
-    password: REDIS_PASSWORD,
-    database: 0,
-  })
-    .on("error", (err) => console.log("Redis Client Error", err))
-    .connect();
+let redisClient = createClient({
+  url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
+  password: REDIS_PASSWORD,
+  database: 0,
+}).on("error", (err) => console.log("Redis Client Error", err));
+// .connect();
 
-  redisClient.on("connect", async () => {
-    if (REDIS_DB_INDEX) {
-      //@ts-ignore
-      redisClient.select(parseInt(REDIS_DB_INDEX, 10));
-    }
-  });
+redisClient.on("connect", async () => {
+  console.log("Redis connected!");
+  if (REDIS_DB_INDEX) {
+    //@ts-ignore
+    redisClient.select(parseInt(REDIS_DB_INDEX, 10));
+  }
 });
+
+redisClient
+  .connect()
+  .then(() => {
+    console.log("Connected to Redis");
+  })
+  .catch((err) => {
+    console.error("Error connecting to Redis", err);
+  });
 
 const client = new Client({
   // intents: 268446720,
@@ -48,7 +54,7 @@ const ADMINS = [
   "oldschooler",
   "Baikie",
   // "Phet",
-  // "CallMeCas", 
+  // "CallMeCas",
   "HeroOfNano",
   "Dyllux",
   "CelioSevii",
@@ -340,7 +346,25 @@ client.on("messageCreate", async (message) => {
         `Your Discord account is not linked to a (Ba)NanoBrowserQuest account. Use the \`!link\` command.`
       );
     } else {
-      message.reply(`Your character is ${playerName}`);
+      const {
+        createdAt,
+        exp,
+        gold = 0,
+        goldStash = 0,
+      } = await redisClient.hGetAll(`u:${playerName}`);
+
+      const level = getLevel(Number(exp));
+
+      const accountCreatedAt = createdAt ? new Date(Number(createdAt)) : null;
+      message.reply(
+        `Your character is ${playerName}\nAccountCreated on: ${accountCreatedAt.toString()} \nGold: ${new Intl.NumberFormat(
+          "en-US"
+        ).format(
+          Number(gold) + Number(goldStash)
+        )}\nLv.${level}\nExp: ${new Intl.NumberFormat("en-US").format(
+          Number(exp)
+        )}`
+      );
     }
 
     // @TODO Get level and stats

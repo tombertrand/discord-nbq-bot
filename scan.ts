@@ -66,7 +66,7 @@ const getNanoBrowserQuestItemScan = async () => {
                           (item: string | number) =>
                             typeof item === "string" &&
                             (item.startsWith("bargold") ||
-                              item.startsWith("chestdead"))
+                              item.startsWith("expansion2voucher"))
                         );
                       const someBarStash =
                         stash &&
@@ -74,7 +74,7 @@ const getNanoBrowserQuestItemScan = async () => {
                           (item: string | number) =>
                             typeof item === "string" &&
                             (item.startsWith("bargold") ||
-                              item.startsWith("chestdead"))
+                              item.startsWith("expansion2voucher"))
                         );
 
                       if (someBarInventory) {
