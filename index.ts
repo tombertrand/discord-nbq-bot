@@ -6,7 +6,7 @@ import { EmojiMap } from "./emojis";
 import { Runes, Runewords } from "./runes";
 import { getBonusDescription } from "./bonus";
 import { createClient } from "redis";
-import { generateRandomString } from "./utils";
+import { generateRandomString, getYearsAndMonthsSince } from "./utils";
 import { RolesMap } from "./roles";
 import { getLevel } from "./experience";
 // import { getPurchaseTotal } from "./purchase";
@@ -20,7 +20,6 @@ let redisClient = createClient({
   password: REDIS_PASSWORD,
   database: 0,
 }).on("error", (err) => console.log("Redis Client Error", err));
-// .connect();
 
 redisClient.on("connect", async () => {
   console.log("Redis connected!");
@@ -144,6 +143,7 @@ client.on("messageCreate", async (message) => {
       `chatBan`,
       bannedPlayerName
     ));
+
     let banDetails;
     if (command === "chatban") {
       if (isPlayerChatBanned) {
@@ -183,7 +183,9 @@ client.on("messageCreate", async (message) => {
           return;
         }
       }
-
+      console.log("~~~isPlayerChatBanned", isPlayerChatBanned);
+      console.log("~~~isPlayerBanned", isPlayerBanned);
+      console.log("~~~banDetails", banDetails);
       if (!isPlayerBanned && !banDetails && !isPlayerChatBanned) {
         message.reply(`${bannedPlayerName} is not banned`);
         return;
@@ -208,12 +210,15 @@ client.on("messageCreate", async (message) => {
         }
         return;
       }
-    } else if (command === "chatunban" && isPlayerChatBanned) {
-      await redisClient.hDel("chatBan", bannedPlayerName);
-
-      message.reply(
-        `${bannedPlayerName} was unbanned from chat (5 mins delay)`
-      );
+    } else if (command === "chatunban") {
+      if (isPlayerChatBanned) {
+        await redisClient.hDel("chatBan", bannedPlayerName);
+        message.reply(
+          `${bannedPlayerName} was unbanned from chat (5 mins delay)`
+        );
+      } else {
+        message.reply(`${bannedPlayerName} is not chatbanned`);
+      }
       return;
     } else if (command === "unban") {
       isPlayerBanned = !!(await redisClient.exists(`ban:${bannedPlayerName}`));
@@ -356,8 +361,16 @@ client.on("messageCreate", async (message) => {
       const level = getLevel(Number(exp));
 
       const accountCreatedAt = createdAt ? new Date(Number(createdAt)) : null;
+      const { years, months } = getYearsAndMonthsSince(Number(createdAt));
+
+      const since = `${
+        years ? `${years} ${years > 1 ? "years" : "year"}` : ""
+      }${years && months ? " and " : ""}${
+        months ? `${months} ${months > 1 ? "months" : "month"}` : ""
+      }`;
+
       message.reply(
-        `Your character is ${playerName}\nAccountCreated on: ${accountCreatedAt.toString()} \nGold: ${new Intl.NumberFormat(
+        `Your character is ${playerName}\nAccountCreated on: ${accountCreatedAt.toString()}\nAccountCreated Since: ${since} \nGold: ${new Intl.NumberFormat(
           "en-US"
         ).format(
           Number(gold) + Number(goldStash)
