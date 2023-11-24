@@ -6,7 +6,7 @@ import { EmojiMap } from "./emojis";
 import { Runes, Runewords } from "./runes";
 import { getBonusDescription } from "./bonus";
 import { createClient } from "redis";
-import { generateRandomString, getYearsAndMonthsSince } from "./utils";
+import { generateRandomString, getYearsMonthsDaysSince } from "./utils";
 import { RolesMap } from "./roles";
 import { getLevel } from "./experience";
 // import { getPurchaseTotal } from "./purchase";
@@ -59,6 +59,8 @@ const ADMINS = [
   "CelioSevii",
   "xDulfinz",
   "bruin",
+  "bread duck",
+  "Thedd",
 ];
 
 const MAX_REPLY_LENGTH = 2000;
@@ -360,17 +362,30 @@ client.on("messageCreate", async (message) => {
 
       const level = getLevel(Number(exp));
 
-      const accountCreatedAt = createdAt ? new Date(Number(createdAt)) : null;
-      const { years, months } = getYearsAndMonthsSince(Number(createdAt));
+      const accountCreatedAt = createdAt && new Date(Number(createdAt));
+      const { years, months, days } = getYearsMonthsDaysSince(
+        Number(createdAt)
+      );
 
-      const since = `${
-        years ? `${years} ${years > 1 ? "years" : "year"}` : ""
-      }${years && months ? " and " : ""}${
-        months ? `${months} ${months > 1 ? "months" : "month"}` : ""
-      }`;
+      const yearsString = years
+        ? `${Math.abs(years)} ${years > 1 ? "years" : "year"}`
+        : "";
+      const monthsString = months
+        ? `${Math.abs(months)} ${months > 1 ? "months" : "month"}`
+        : "";
+      const daysString = days
+        ? `${Math.abs(days)} ${days > 1 ? "days" : "day"}`
+        : "";
+
+      const parts = [yearsString, monthsString, daysString].filter(
+        (part) => part !== ""
+      );
+      const since = parts
+        .join(parts.length === 2 ? " and " : ", ")
+        .replace(/, ([^,]*)$/, " and $1");
 
       message.reply(
-        `Your character is ${playerName}\nAccountCreated on: ${accountCreatedAt.toString()}\nAccountCreated Since: ${since} \nGold: ${new Intl.NumberFormat(
+        `Your character is ${playerName}\nAccountCreated on: ${accountCreatedAt.toString()}\nAccountCreated Since: ${since}\nGold: ${new Intl.NumberFormat(
           "en-US"
         ).format(
           Number(gold) + Number(goldStash)
