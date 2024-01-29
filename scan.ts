@@ -1,103 +1,74 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const redis = require("redis");
+import { createClient } from "redis";
 const chunk = require("lodash/chunk");
 
 const { Sentry } = require("./sentry");
+const { REDIS_PORT, REDIS_HOST, REDIS_DB_INDEX, REDIS_PASSWORD } = process.env;
 
-const {
-  NBQ_REDIS_PORT,
-  NBQ_REDIS_HOST,
-  NBQ_REDIS_PASSWORD,
-  NBQ_REDIS_DB_INDEX,
-} = process.env;
-
-const client = redis.createClient(NBQ_REDIS_PORT, NBQ_REDIS_HOST, {
-  password: NBQ_REDIS_PASSWORD,
+let redisClient = createClient({
+  url: `redis://${REDIS_HOST}:${REDIS_PORT}`,
+  password: REDIS_PASSWORD,
+  database: REDIS_DB_INDEX || 0,
 });
 
-// client.connect();
-
-client.on("connect", async function () {
-  client.select(NBQ_REDIS_DB_INDEX); // NBQ DB
-  console.log("Connected to Redis");
-
-  await getNanoBrowserQuestItemScan();
-});
-
-client.on("error", function (err: Error) {
+redisClient.on("error", (err) => {
+  console.log("Redis Client Error", err);
   Sentry.captureException(err);
 });
 
-const getNanoBrowserQuestItemScan = async () => {
-  let res;
-  console.log("~~~1");
+async function getNanoBrowserQuestPlayerScan() {
   try {
-    console.log("~~~2");
     const PER_PAGES = 500;
-    client.keys("u:*", async (_err: Error, players: any[]) => {
-      console.log("~_err", _err);
-      console.log("~players", players);
-      const playersChunks = chunk(players, PER_PAGES);
-      console.log("~~~playersChunks", playersChunks);
+    const players = await redisClient.keys("u:*");
+    console.log("~players", players);
+    const playersChunks = chunk(players, PER_PAGES);
 
-      for (let i = 0; i < playersChunks.length; i++) {
-        const rawPlayerData = await Promise.all(
-          playersChunks[i].map(
-            (player: any) =>
-              new Promise((resolve) => {
-                client.hmget(
-                  player,
-                  "inventory",
-                  "stash",
+    for (const chunk of playersChunks) {
+      const rawPlayerData = await Promise.all(
+        chunk.map(async (player) => {
+          const [
+            rawInventory,
+            rawStash,
+            exp,
+            expansion1,
+            expansion2,
+            migrations,
+          ] = await redisClient.hmGet(
+            player,
+            "inventory",
+            "stash",
+            "exp",
+            "expansion1",
+            "expansion2",
+            "migrations"
+          );
 
-                  (_err: Error, reply: any[]) => {
-                    const rAwInventory = reply[0];
-                    const rawStash = reply[1];
+          const playersWithLowExp = {};
+          if (exp <= 100 || !migrations || !expansion1) {
+            playersWithLowExp[player.name] = exp;
+          }
 
-                    try {
-                      const inventory = JSON.parse(rAwInventory);
-                      const stash = JSON.parse(rawStash);
-
-                      const someBarInventory =
-                        inventory &&
-                        inventory.some(
-                          (item: string | number) =>
-                            typeof item === "string" &&
-                            (item.startsWith("bargold") ||
-                              item.startsWith("expansion2voucher"))
-                        );
-                      const someBarStash =
-                        stash &&
-                        stash.some(
-                          (item: string | number) =>
-                            typeof item === "string" &&
-                            (item.startsWith("bargold") ||
-                              item.startsWith("expansion2voucher"))
-                        );
-
-                      if (someBarInventory) {
-                        console.log("someBarInventoryplayer", player);
-                      }
-
-                      if (someBarStash) {
-                        console.log("someBarStash", player);
-                      }
-
-                      resolve(true);
-                    } catch (err) {
-                      console.log("~~~err", err);
-                    }
-                  }
-                );
-              })
-          )
-        );
-      }
-    });
+          console.log("~~~~playersWithLowExp", playersWithLowExp);
+        })
+      );
+    }
   } catch (err) {
-    console.log("Error", err);
-    Sentry.captureException(err, { extra: { res } });
+    console.error("Error", err);
+    Sentry.captureException(err);
   }
-};
+}
+
+async function main() {
+  try {
+    await redisClient.connect();
+    console.log("Connected to Redis");
+    await getNanoBrowserQuestPlayerScan();
+  } catch (err) {
+    console.error("Error connecting to Redis", err);
+    Sentry.captureException(err);
+  }
+}
+
+main();
