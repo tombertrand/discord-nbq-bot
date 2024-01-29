@@ -61,6 +61,7 @@ const ADMINS = [
   "bruin",
   "bread duck",
   "Thedd",
+  "vikramr"
 ];
 
 const MAX_REPLY_LENGTH = 2000;
