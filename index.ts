@@ -51,17 +51,14 @@ const client = new Client({
 const ADMINS = [
   "running-coder",
   "oldschooler",
-  "Baikie",
-  // "Phet",
-  // "CallMeCas",
-  "HeroOfNano",
   "Dyllux",
   "CelioSevii",
   "xDulfinz",
   "bruin",
   "bread duck",
   "Thedd",
-  "vikramr"
+  "vikramr"'
+  "Crimson Bean",
 ];
 
 const MAX_REPLY_LENGTH = 2000;
