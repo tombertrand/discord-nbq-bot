@@ -57,7 +57,7 @@ const ADMINS = [
   "bruin",
   "bread duck",
   "Thedd",
-  "vikramr"'
+  "vikramr",
   "Crimson Bean",
 ];
 
