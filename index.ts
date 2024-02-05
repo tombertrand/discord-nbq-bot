@@ -270,6 +270,8 @@ client.on("messageCreate", async (message) => {
     let equipmentType = args[0];
     if (equipmentType === "helmet") {
       equipmentType = "helm";
+    } else if (equipmentType === "armour") {
+      equipmentType = "armor";
     }
 
     if (args[0]) {
