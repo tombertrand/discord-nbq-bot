@@ -12,14 +12,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "bignumber.js": "^9.1.1",
-    "discord.js": "^14.7.1",
+    "discord.js": "^14.14.1",
     "dotenv": "^16.0.3",
     "nanocurrency-web": "^1.4.3",
     "redis": "^4.6.10"
   },
   "devDependencies": {
     "@sentry/node": "^7.75.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/redis": "^4.0.11",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",

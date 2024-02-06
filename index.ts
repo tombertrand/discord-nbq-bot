@@ -1,7 +1,8 @@
+import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, ChannelType, Partials } from "discord.js";
 import { EmojiMap } from "./emojis";
 import { Runes, Runewords } from "./runes";
 import { getBonusDescription } from "./bonus";
@@ -39,13 +40,14 @@ redisClient
   });
 
 const client = new Client({
-  // intents: 268446720,
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.DirectMessages,
   ],
+  partials: [Partials.Channel, Partials.Message],
 });
 
 const ADMINS = [
@@ -70,6 +72,7 @@ const getCommands = (isAdmin = false) => {
     "`!me` Show your player stats to other players, this command requires your Discord and (Ba)NanoBrowserQuest accounts to be linked",
     "`!unlink` Unlink your Discord and your (Ba)NanoBrowserQuest account",
     "`!getroles` Refresh the roles assigned to your account.",
+    "`!changepassword` reset your Password, your account must be linked with Discord",
     "`!runelist` List the runes by rank and their attribute(s)\nYou can combine runes at the Anvil to get the next rank rune. Below rune rank 18 you need 3 of the same rune, above or equal is 2 runes.",
     "`!runewords [helm|armor|weapon|shield]` List the runewords that can be forged at the Anvil\nTo succesfully forge runewords you need to place the runes in a **non-unique** equipment in the exact order for the correct amount of sockets.",
     "`!admins` List the game admins",
@@ -89,22 +92,49 @@ const getCommands = (isAdmin = false) => {
 
 const channels = {
   general: "971429295186665536",
-  jungle: "971536705121300490",
-  support: "971429767842779146",
+  "bot-commands": "971429767842779146",
   betaChat: "1058466758077468782",
   moderatorSupport: "1149048949928370326",
 };
 
+let changePasswordPlayer: string | null = null;
+let unhashedPassword = "";
+
 client.on("messageCreate", async (message) => {
+  // console.log("~~~~~changePasswordPlayer", changePasswordPlayer);
+
+  if (changePasswordPlayer && message.channel.type === ChannelType.DM) {
+    unhashedPassword = message.content;
+    // console.log("~~~message.content", message.content);
+
+    const key = `discord:${message.author.id}`;
+    const playerName = await redisClient.get(key);
+
+    if (playerName === changePasswordPlayer) {
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(unhashedPassword, salt);
+      await redisClient.hSet(
+        `u:${changePasswordPlayer}`,
+        "password",
+        passwordHash
+      );
+      message.author.send(`Your password was changed to: ${unhashedPassword}`);
+
+      changePasswordPlayer = null;
+      return;
+    }
+  }
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
   if (
-    ![channels.support, channels.betaChat, channels.moderatorSupport].includes(
-      message.channelId
-    )
+    ![
+      channels["bot-commands"],
+      channels.betaChat,
+      channels.moderatorSupport,
+    ].includes(message.channelId)
   ) {
     message.reply(
-      `You may only use bot commands in the <#${channels.support}> channel`
+      `You may only use bot commands in the <#${channels["bot-commands"]}> channel`
     );
     return;
   }
@@ -183,9 +213,6 @@ client.on("messageCreate", async (message) => {
           return;
         }
       }
-      console.log("~~~isPlayerChatBanned", isPlayerChatBanned);
-      console.log("~~~isPlayerBanned", isPlayerBanned);
-      console.log("~~~banDetails", banDetails);
       if (!isPlayerBanned && !banDetails && !isPlayerChatBanned) {
         message.reply(`${bannedPlayerName} is not banned`);
         return;
@@ -343,6 +370,27 @@ client.on("messageCreate", async (message) => {
             `Something went wrong while I tried to send you a DM`
           );
         });
+    }
+  } else if (command === "changepassword") {
+    const key = `discord:${message.author.id}`;
+    const playerName = await redisClient.get(key);
+    changePasswordPlayer = playerName;
+
+    if (playerName) {
+      message.author.send(
+        `You're trying change your password for username **${playerName}**, type your new password here (Please reply within 30 seconds):`
+      );
+
+      if (message.author.bot) return;
+
+      if (message.channel.type === ChannelType.GuildText) {
+        console.log(`Received in: ${message.content}`);
+        message.reply("Hello! I sent you a message.");
+      }
+    } else {
+      message.author.send(
+        `You're Discord account is not linked to "Unknown player name"`
+      );
     }
   } else if (command === "me") {
     const key = `discord:${message.author.id}`;
